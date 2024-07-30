@@ -1,0 +1,315 @@
+
+C:\DevApps\pyApps\workspace2\NetscoutMate\
+|-- .env
+|-- main.py
+|-- templates\
+    |-- index.html
+    |-- *.html
+|-- statics\
+    |-- assets\
+        |-- js\*.js
+        |-- css\*.css
+|-- db\
+    |-- database.db
+|-- server_unencrypted.key
+|-- server.crt
+|-- Dockerfile
+|-- requirements.txt
+
+
+
+# ----------------------------------
+touch main.py
+touch requirements.txt
+touch Dockerfile
+touch server.crt
+touch server_unencrypted.key
+
+mkdir db
+mkdir templates
+mkdir statics
+cd statics
+
+mkdir assets
+cd assets
+mkdir js
+mkdir css
+mkdir img
+mkdir audio
+# ----------------------------------
+
+
+
+
+
+[requirements.txt]
+fastapi
+uvicorn[standard]
+sqlite3
+python-dotenv
+
+
+[Dockerfile]
+# Use an official Python runtime as a base image
+FROM python:3.11-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements.txt file into the container
+COPY requirements.txt .
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application source code into the container
+COPY . .
+
+# Expose port 8856 to the outside world
+EXPOSE 8856
+
+# Command to run the application with SSL and reload
+CMD ["uvicorn", "main2:app", "--host", "0.0.0.0", "--port", "8856", "--ssl-keyfile", "server_unencrypted.key", "--ssl-certfile", "server.crt", "--reload"]
+
+
+[Build Docker Image]
+C:\DevApps\pyApps\workspace2\NetscoutMate\
+
+docker build -t netscoutmate-app .
+
+[Run Docker Container]
+docker run -d -p 8856:8856 --name netscoutmate-container netscoutmate-app
+
+
+[Verify Container is Running]
+docker ps
+
+
+[Test Application]
+https://192.168.1.16:8856
+
+
+# -----------------------------------------
+Example with Changing .env Values
+Initial .env File
+
+#initial .env File
+DATABASE_URL=db/database.db
+SECRET_KEY=mysecretkey
+
+sh ----------------------
+docker run -d -p 5985:5985 --name my-fastapi-container --env-file .env my-fastapi-app
+
+#Updated .env File
+DATABASE_URL=db/new_database.db
+SECRET_KEY=newsecretkey
+
+
+Stop and remove the existing container:
+sh ----------------------
+docker stop my-fastapi-container
+docker rm my-fastapi-container
+
+Run a new container with the updated .env file:
+
+sh ----------------------
+docker run -d -p 5985:5985 --name my-fastapi-container --env-file .env my-fastapi-app
+
+
+
+
+#-------------------------------------------------
+# Using Docker Compose
+
+[docker-compose.yml]
+version: '3.8'
+
+services:
+  fastapi_app:
+    image: my-fastapi-app
+    container_name: my-fastapi-container
+    ports:
+      - "8856:8856"
+    env_file:
+      - .env
+    volumes:
+      - ./templates:/app/templates
+      - ./statics:/app/statics
+      - ./db:/app/db
+
+
+Run with Docker Compose:
+[Start the service:]
+docker-compose up -d
+
+[Update your .env file and restart the service when needed]
+docker-compose down
+docker-compose up -d
+
+
+
+
+├── python-docker-dev-example/
+│ ├── db/
+│ │ 	└── sqlite.db
+│ │
+│ ├── static/
+│ │ 	└── assets/
+│ │ 		├── js/
+│ │ 		│	└── script.js
+│ │ 		├── css/
+│ │ 		│ 	└── style.css
+│ │ 		└── images/
+│ │ 			└── img.png
+│ │
+│ ├── templates/
+│ │ 	└── index.html
+│ │
+│ ├── main.py
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+
+
+│ ├── requirements.txt
+│ ├── .env
+
+│ ├── compose.yaml
+│ ├── Dockerfile
+
+│ ├── config.py
+│ ├── .dockerignore
+│ ├── .gitignore
+│ ├── README.Docker.md
+│ └── README.md
+
+
+
+
+# [ Basic Docker Workflow Steps ]
+<sh> - These commands should be run in your Shell, Terminal, or Docker Terminal.
+
+Note:
+NEED to Rebuild the image if there is changes in the application
+
+# 1. Build the Docker Image
+<sh>
+docker build -t <dockerappname>-image .
+
+# 2. Run the Docker Image as a Container
+<sh>
+docker run -d -p 8857:8857 --name <dockerappname>-container <dockerappname>-image
+				 │	  └── PORT2 : Dockerfile Port Declararion
+ 				 └─────── PORT1 : Port to Access
+ 	Changing Access Port:
+	To change the access port on the host, modify PORT1 in the -p option. 
+
+	For example, -p 8080:8857 would map port 8080 on the host to port 8857 in the container.(Dockerfile Port)
+
+
+# if error encountered check the ff:
+==============================================
+<sh>
+> sudo nano /etc/resolv.conf
+# generateResolvConf = false
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+
+==============================================
+<sh>
+> sudo nano /etc/wsl.conf
+[boot]
+systemd=true
+
+[boot]
+generateResolvConf = false
+
+==============================================
+# Then Restart Docker
+Do # 2. again
+
+
+==============================================
+# [ Stop and remove the existing container: ]
+<sh>
+1. Stop the Container:
+docker stop <dockerappname>-container
+
+2. Remove the Container:
+docker rm <dockerappname>-container
+
+==============================================
+[EXPORTING DOCKER IMAGE]
+1. Save Image to a Tarball File
+docker save -o <dockerappname>-image.tar <dockerappname>-image:latest
+
+2. Copy the Tarball File to the Destination
+Transfer the tarball file (<dockerappname>-image.tar) to the destination, such as using a USB drive or copying it to another computer.
+
+3. Load the tarball file image.
+On the target machine, load the Docker image from the tarball file:
+docker load -i <dockerappname>-image.tar
+
+4. Run a Container from the Image
+docker run -d -p 8857:8857 --name <dockerappname>-container <dockerappname>-image
+				  │    │
+				  │    └── PORT2 : Dockerfile Port Declararion
+				  └─────── PORT1 : Port to Access
+
+note: if you want to change the access port, change PORT1
+
+==============================================
+[REMEMBER]
+1. You need a Dockerfile: Defines how to build a Docker image.
+2. You need a Docker Image: A static snapshot of an application and its dependencies.
+3. A Docker Container: A running instance of a Docker image, isolated and independent of other containers.
+4. Any Changes: Modify the Dockerfile or application files, rebuild the image, and then recreate the container if needed.
+
+
+
+
+docker run --name benpostgres -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=1x7d9r1x -e POSTGRES_DB=postDB -p 5432:5432 -d postgres
+
+
+docker run --name vinpostgres-container -e POSTGRES_PASSWORD=MS043ms- -e POSTGRES_USER=epmax -e POSTGRES_DB=postgresdb -p 5432:5432 -d postgres
+
+docker exec -it vinpostgres-container psql -U epmax -d postgresdb
+
+
+docker exec -it postgres-container psql -U myuser -d mydatabase
+
+
+docker run --name <postgres-container> -e POSTGRES_PASSWORD=<mysecretpassword> -e POSTGRES_USER=<myuser> -e POSTGRES_DB=<mydatabase> -p 5432:5432 -d postgres
+
+* Name the container <postgres-container>
+* Set the PostgreSQL user to <myuser>
+* Set the PostgreSQL password to <mysecretpassword>
+* Create a database named <mydatabase>
+* Map port 5432 of the container to port 5432 on your host machine.
+* Run the container in detached mode.
+
+
+
+
+---------------------------------------
+Dockerfile
+
+docker build -t fastapiko1-image .
+docker build -t fastapiko2-image .
+
+docker run -d -p 8857:8857 --name fastapiko1-container fastapiko1-image
+docker run -d -p 8857:8857 --name fastapiko2-container fastapiko2-image
+
+
