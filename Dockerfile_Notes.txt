@@ -266,9 +266,9 @@ docker load -i <dockerappname>-image.tar
 
 4. Run a Container from the Image
 docker run -d -p 8857:8857 --name <dockerappname>-container <dockerappname>-image
-				  │    │
-				  │    └── PORT2 : Dockerfile Port Declararion
-				  └─────── PORT1 : Port to Access
+		  │    │
+		  │    └── PORT2 : Dockerfile Port Declararion
+		  └─────── PORT1 : Port to Access
 
 note: if you want to change the access port, change PORT1
 
