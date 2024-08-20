@@ -49,7 +49,7 @@ sqlite3
 python-dotenv
 
 
-[Dockerfile]
+[Dockerfile]================================================
 # Use an official Python runtime as a base image
 FROM python:3.11-slim
 
@@ -72,20 +72,22 @@ EXPOSE 8856
 CMD ["uvicorn", "main2:app", "--host", "0.0.0.0", "--port", "8856", "--ssl-keyfile", "server_unencrypted.key", "--ssl-certfile", "server.crt", "--reload"]
 
 
-[Build Docker Image]
+[Build Docker Image]=========================================
 C:\DevApps\pyApps\workspace2\NetscoutMate\
 
 docker build -t netscoutmate-app .
+docker build -t fastapiko1-app .
 
-[Run Docker Container]
+[Run Docker Container]======================================
 docker run -d -p 8856:8856 --name netscoutmate-container netscoutmate-app
+docker run -d -p 8857:8857 --name fastapiko1-container fastapiko1-app
+docker run -d -p 8857:8858 --name fastapiko1-container fastapiko2-app
 
-
-[Verify Container is Running]
+[Verify Container is Running]===============================
 docker ps
 
 
-[Test Application]
+[Test Application]===========================================
 https://192.168.1.16:8856
 
 
@@ -311,5 +313,16 @@ docker build -t fastapiko2-image .
 
 docker run -d -p 8857:8857 --name fastapiko1-container fastapiko1-image
 docker run -d -p 8857:8857 --name fastapiko2-container fastapiko2-image
+
+=====================================================
+SQLITE
+main.py 	
+uvicorn main:app --host 0.0.0.0 --port 8856 --reload --ssl-keyfile server_unencrypted.key --ssl-certfile server.crt
+
+POSTGRESQL
+main2.py	
+uvicorn main2:app --host 0.0.0.0 --port 8858 --reload --ssl-keyfile server_unencrypted.key --ssl-certfile server.crt
+
+
 
 
