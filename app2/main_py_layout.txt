@@ -1,0 +1,59 @@
+├── python-docker-dev-example/
+│ ├── db/
+│ │ 	└── sqlite.db
+│ │
+│ ├── static/
+│ │ 	└── assets/
+│ │ 		├── js/
+│ │ 		│	└── script.js
+│ │ 		├── css/
+│ │ 		│ 	└── style.css
+│ │ 		└── images/
+│ │ 			└── img.png
+│ │
+│ ├── templates/
+│ │ 	└── index.html
+│ │
+│ │
+│ │
+│ ├── main.py
+│ │ 	├── def get_connection()
+│ │ 	├── def create_table1():
+│ │ 	└── def create_table2():
+
+│ │ 	├── class ScannedData(BaseModel):
+│ │     │
+│ │ 	└── def create_table3():
+
+│ │ 	
+│ │ 	├── @POST(/input1b/)
+│ │ 	├── @POST(/input1a/)
+│ │ 	
+
+│ │ 	├── @POST(/qrscan333/)
+│ │ 	└── @GET(/del)
+
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+│ │ 	└── @GET()
+│ │ 	└── @POST()
+│ │
+
+
+│ ├── requirements.txt
+│ ├── .env
+
+│ ├── compose.yaml
+│ ├── Dockerfile
+
+│ ├── config.py
+│ ├── .dockerignore
+│ ├── .gitignore
+│ ├── README.Docker.md
+│ └── README.md
