@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+Jinja2
+db-sqlite3
+python-multipart
