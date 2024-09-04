@@ -1,0 +1,76 @@
+--------------------
+docker-compose.yml
+--------------------
+# version: '3.8'  # Specifies the version of the Docker Compose file format
+
+services:
+  frontend:
+    container_name: fastapi_container  # Name of the frontend container
+    image: fastapi_image:latest  # The Docker image to use for the frontend service
+    build:
+      context: ./frontend  # Build context is the ./frontend directory
+      dockerfile: Dockerfile  # Specifies the Dockerfile located in ./frontend
+    ports:
+      - "8856:8857"  # EXPOSE Docker port 8857 of the container to URL port 8856 on the host machine
+    volumes:
+      - ./frontend:/app  # Mounts the frontend folder to /app inside the container
+    depends_on:
+      - mssql_db  # Ensures that the frontend service starts after the mssql_db service
+    environment:
+      DB_HOST: mssql_db  # Environment variable for database host
+      DB_USER: sa  # Environment variable for database user
+      DB_PASSWORD: Admin@123.  # Environment variable for database password
+      DB_NAME: devappDB  # Environment variable for the database name
+    networks:
+      - app-network  # Connects frontend to the app-network
+
+  mssql_db:
+    container_name: mssql_container  # Name of the MSSQL database container
+    image: mssql_image:latest  # The Docker image to use for the MSSQL service
+    build:
+      context: ./database  # Build context is the ./database directory
+      dockerfile: Dockerfile  # Specifies the Dockerfile located in ./database
+    environment:
+      ACCEPT_EULA: "Y"  # Accepts the Microsoft SQL Server EULA
+      SA_PASSWORD: "Admin@123."  # Environment variable for the SQL Server SA password
+    ports:
+      - "1433:1433"  # Maps port 1433 of the container to port 1433 on the host machine
+    volumes:
+      - mssql_data:/var/opt/mssql  # Persists the database files in the mssql_data volume
+    networks:
+      - app-network  # Connects MSSQL database to the app-network
+
+networks:
+  app-network:
+    driver: bridge  # Specifies a bridge network driver for communication between containers
+
+volumes:
+  mssql_data:  # Defines a named volume for persisting MSSQL database data
+
+
+---------------------------
+COMMAND SNIPPET
+---------------------------
+# Basic Usage If you have a docker-compose.yml file named docker-compose.prod.yml and you want to use it
+docker-compose -f <docker-compose yml file> up
+docker-compose -f docker-compose2.yml up
+
+# Build and Start the Containers:
+docker-compose up --build
+
+# Run in Detached Mode (Optional): If you want to run the containers in the background, use the -d flag:
+docker-compose up -d --build
+
+# Stop the Containers: To stop the running containers,
+docker-compose down
+
+# Check Container Status: You can view the running containers using
+docker ps
+
+# Stop a Specific Container:
+docker stop fastapi_container
+docker-compose stop mssql_db
+
+# To restart a service that was stopped, use:
+docker-compose start frontend
+docker-compose start mssql_db
