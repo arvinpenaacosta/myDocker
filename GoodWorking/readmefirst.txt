@@ -49,13 +49,24 @@ CREATE TABLE entries (
         field2 NVARCHAR(255) NOT NULL
     );
 
--------------
+----------------
 .env
+================
 # DB_USER=sa
 # DB_PASSWORD=Admin@123.
 # DB_NAME=devappDB
 # DB_HOST=localhost
 
+
+----------------
+requirements.txt
+================
+python-multipart
+fastapi
+uvicorn
+pymssql
+python-dotenv
+jinja2
 
 
 
