@@ -1,0 +1,44 @@
+
+services:
+  frontend:
+    container_name: fastapi_container
+    image: fastapi_image:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8856:8857"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - mssql_db
+    environment:
+      DB_HOST: mssql_db
+      DB_USER: sa
+      DB_PASSWORD: Admin@123.
+      DB_NAME: devappDB
+    networks:
+      - app-network
+
+  mssql_db:
+    container_name: mssql_container
+    image: mssql_image:latest
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Admin@123."
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mssql_data:
