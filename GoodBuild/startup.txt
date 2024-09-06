@@ -1,0 +1,128 @@
+# run the default docker-compose.yml
+docker-compose up --build.
+   
+# run a specific docker-compose file
+docker-compose -f <yaml file> up --build  
+docker-compose -f docker-compose2.yml up --build 
+docker-compose -f docker-compose-main.yml up --build
+docker-compose -f docker-compose-office.yml up --build
+
+do this once database is created. Create a Database and a Table
+-------------------------
+CREATE DATABASE devappDB;
+
+CREATE TABLE entries (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    field1 NVARCHAR(255) NOT NULL,
+    field2 NVARCHAR(255) NOT NULL
+);
+
+
+
+
+#######################################   
+1. Ensure both Docker Compose files share the same network
+Modify both your docker-compose-main.yml and docker-compose-backoffice.yml files to explicitly use the same named network. For example, use a network called app-network.
+#######################################   
+
+--------------------------------------------------------------------
+# docker-compose-main.yml
+--------------------------------------------------------------------
+services:
+  backend:
+    container_name: fapi_backend_ctr
+    image: fapi_backend_img:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8856:8857"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - mssql_db
+    environment:
+      DB_HOST: mssql_db
+      DB_USER: sa
+      DB_PASSWORD: Admin@123.
+      DB_NAME: devappDB
+    networks:
+      - app-network
+
+  mssql_db:
+    container_name: db_mssql_ctr
+    image: db_mssql_img:latest
+    build:
+      context: ./dbase
+      dockerfile: Dockerfile
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Admin@123."
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_vol:/var/opt/mssql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true  # Marks the network as external
+
+--------------------------------------------------------------------
+# docker-compose-backoffice.yml
+--------------------------------------------------------------------
+services:
+  back_office:
+    container_name: backoffice_ctr
+    image: backoffice_img:latest
+    build:
+      context: ./back_office
+      dockerfile: Dockerfile
+    ports:
+      - "8872:8857"
+    volumes:
+      - ./back_office:/app
+    depends_on:
+      - mssql_db
+    environment:
+      DB_HOST: mssql_db  # Database host remains the same
+      DB_USER: sa
+      DB_PASSWORD: Admin@123.
+      DB_NAME: devappDB
+    networks:
+      - app-network  # Connects to the same network as docker-compose-main.yml
+
+networks:
+  app-network:
+    external: true  # Uses the same external network
+
+
+#######################################    
+2. Create the shared network
+####################################### 
+Before running the containers, you need to manually create the external network once if it doesn't already exist. 
+Run the following command:
+--------------------------------------------------------------------
+docker network create app-network
+--------------------------------------------------------------------
+
+
+####################################### 
+3. Running the containers
+####################################### 
+Now you can run both Docker Compose files independently, and the services will be able to communicate via the shared network. For example:
+
+# Start the services in docker-compose-main.yml:
+--------------------------------------------------------------------
+docker-compose -f docker-compose-main.yml up -d
+--------------------------------------------------------------------
+
+# Start the services in docker-compose-backoffice.yml:
+--------------------------------------------------------------------
+docker-compose -f docker-compose-backoffice.yml up -d
+--------------------------------------------------------------------
+
+
+Since both Compose files are using the same app-network, 
+your back_office service from docker-compose-backoffice.yml can access the mssql_db service from docker-compose-main.yml.

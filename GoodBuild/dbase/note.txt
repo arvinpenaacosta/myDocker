@@ -1,0 +1,150 @@
+
+docker pull mcr.microsoft.com/mssql/server:2022-latest
+
+docker build -t <mssqlImage_name> .
+
+docker run -d -p 1433:1433 --name <mssqlContainer_name> <mssqlImage_name>
+-------
+
+
+docker pull mcr.microsoft.com/mssql/server:2022-latest
+
+Dockerfile
+
+docker build -t mssql-image .
+
+docker run -d -p 1433:1433 --name mssql-container mssql-image
+
+
+
+
+
+docker pull mcr.microsoft.com/mssql/server:2022-latest
+
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=admin' -p 1433:1433 --name mssql-container -d mcr.microsoft.com/mssql/server:2022-latest
+
+
+--------------------------------
+1.
+Dockerfile
+--------------
+# Use the official Microsoft SQL Server image from the Microsoft Container Registry
+
+FROM mcr.microsoft.com/mssql/server:2022-latest
+
+# Set environment variable to accept the SQL Server license agreement
+ENV ACCEPT_EULA=Y
+
+# Expose SQL Server port
+EXPOSE 1433
+
+# Optionally, copy any initialization scripts or configuration files into the container
+# COPY ./init.sql /var/opt/mssql/init.sql
+
+# Run SQL Server as the container's main process
+CMD ["/opt/mssql/bin/sqlservr"]
+--------------
+
+2.
+docker build -t my-mssql-image .
+
+3. Run a Docker Container
+docker run -d --name my-mssql-container -e SA_PASSWORD=1Z2s3e4r! -p 1433:1433 my-mssql-image
+
+4. Optional: Persist Data with a Volume
+docker run -d --name my-mssql-container -e SA_PASSWORD=1Z2s3e4r! -p 1433:1433 -v sqlserverdata:/var/opt/mssql my-mssql-image
+
+5. Verify the Setup
+docker logs my-mssql-container
+
+
+
+
+docker run --env-file .env -d --name my-mssql-container -p 1433:1433 my-mssql-image
+
+
+docker build -t mssql-server-image .
+docker run -d --name mssql-server-container -e SA_PASSWORD=Admin@123. -p 1433:1433 mssql-server-image
+
+
+
+
+
+docker build -t vin-mssql-image .
+docker run -d --name vin-mssql-container -e SA_PASSWORD=1Z2s3e4r! -p 1433:1433 vin-mssql-image
+
+docker run --env-file .env -d --name vin-mssql-container -p 1433:1433 vin-mssql-image
+
+docker run --env-file .env -d --name my-mssql-container -p 1433:1433 my-mssql-image
+
+
+
+CREATE DATABASE devappDB;
+
+CREATE TABLE entries (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    field1 NVARCHAR(255) NOT NULL,
+    field2 NVARCHAR(255) NOT NULL
+);
+
+
+==========================
+init.sql
+--------------------------
+CREATE DATABASE devappDB;
+GO
+
+USE devappDB;
+GO
+
+CREATE TABLE entries (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    field1 NVARCHAR(255) NOT NULL,
+    field2 NVARCHAR(255) NOT NULL
+);
+GO
+
+
+docker build -t vin-mssql-image .
+docker run -e 'ACCEPT_EULA=Y' -e 'SA_PASSWORD=Admin@123.' -p 1433:1433 --name vin-mssql-container vin-mssql-image
+
+
+
+Admin@123.
+
+
+
+
+
+
+
+\APP_MSSQL
+│ 
+docker-compose.yml
+│ 
+├───dbase
+│       Dockerfile
+│       
+│
+└───backend
+    │   .env
+    │   Dockerfile
+    │   main.py
+    │   requirements.txt
+    │
+    ├───certs
+    │       server.crt
+    │       server.key
+    │       server_unencrypted.key
+    │
+    ├───statics
+    │   └───assets
+    │       ├───css
+    │       │       style.css
+    │       │
+    │       └───js
+    │               script.js
+    │
+    ├───templates
+    │       index.html
+  

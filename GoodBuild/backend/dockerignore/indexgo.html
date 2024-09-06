@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gin App</title>
+    <link rel="stylesheet" href="/statics/assets/css/style.css">
+</head>
+<body>
+    <h1>Welcome to Gin</h1>
+    <p>This is the main page served by Gin.</p>
+    <p>API Endpoint: <a href="/api/hello">/api/hello</a></p>
+
+    <!-- Display values from .env -->
+    <p>Distinct Word: {{ .DistinctWord }}</p>
+    <p>KB Patch: {{ .KBPatch }}</p>
+
+    <!-- Form for data submission -->
+    <form action="/api/submit" method="post">
+        <label for="field1">Field 1:</label>
+        <input type="text" id="field1" name="field1" required>
+        <br>
+        <label for="field2">Field 2:</label>
+        <input type="text" id="field2" name="field2" required>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Table to view saved entries -->
+    <h2>Saved Entries</h2>
+    <table id="entries-table">
+        <thead>
+            <tr>
+                <th>Field 1</th>
+                <th>Field 2</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Entries }}
+                <tr>
+                    <td>{{ .Field1 }}</td>
+                    <td>{{ .Field2 }}</td>
+                </tr>
+            {{ end }}
+        </tbody>
+    </table>
+
+    <script src="/statics/assets/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+
+services:
+  back_office:
+    container_name: backoffice_ctr  # Name of the back_office container
+    image: backoffice_img:latest  # The Docker image to use for the back_office service
+    build:
+      context: ./back_office  # Build context is the ./back_office directory
+      dockerfile: Dockerfile  # Specifies the Dockerfile located in ./back_office
+    ports:
+      - "8872:8857"  # Maps port 8857 of the container to port 8856 on the host machine
+    volumes:
+      - ./back_office:/app  # Mounts the back_office folder to /app inside the container
+    depends_on:
+      - mssql_db  # Ensures that the back_office service starts after the mssql_db service
+    environment:
+      DB_HOST: mssql_db  # Environment variable for database host
+      DB_USER: sa  # Environment variable for database user
+      DB_PASSWORD: Admin@123.  # Environment variable for database password
+      DB_NAME: devappDB  # Environment variable for the database name
+    networks:
+      - app-network  # Connects back_office to the app-network

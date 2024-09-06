@@ -1,0 +1,45 @@
+
+services:
+  backend:
+    container_name: fapi_backend_ctr  # Name of the backend container
+    image: fapi_backend_img:latest  # The Docker image to use for the backend service
+    build:
+      context: ./backend  # Build context is the ./backend directory
+      dockerfile: Dockerfile  # Specifies the Dockerfile located in ./backend
+    ports:
+      - "8856:8857"  # Maps port 8857 of the container to port 8856 on the host machine
+    volumes:
+      - ./backend:/app  # Mounts the backend folder to /app inside the container
+    depends_on:
+      - mssql_db  # Ensures that the backend service starts after the mssql_db service
+    environment:
+      DB_HOST: mssql_db  # Environment variable for database host
+      DB_USER: sa  # Environment variable for database user
+      DB_PASSWORD: Admin@123.  # Environment variable for database password
+      DB_NAME: devappDB  # Environment variable for the database name
+    networks:
+      - app-network  # Connects backend to the app-network
+
+  mssql_db:
+    container_name: db_mssql_ctr  # Name of the MSSQL database container
+    image: db_mssql_img:latest  # The Docker image to use for the MSSQL service
+    build:
+      context: ./dbase  # Build context is the ./dbase directory
+      dockerfile: Dockerfile  # Specifies the Dockerfile located in ./dbase
+    environment:
+      ACCEPT_EULA: "Y"  # Accepts the Microsoft SQL Server EULA
+      SA_PASSWORD: "Admin@123."  # Environment variable for the SQL Server SA password
+    ports:
+      - "1433:1433"  # Maps port 1433 of the container to port 1433 on the host machine
+    volumes:
+      - mssql_vol:/var/opt/mssql  # Persists the database files in the mssql_vol volume
+    networks:
+      - app-network  # Connects MSSQL database to the app-network
+
+networks:
+  app-network:
+    driver: bridge  # Specifies a bridge network driver for communication between containers
+
+volumes:
+  mssql_vol:  # Defines a named volume for persisting MSSQL database data
+
