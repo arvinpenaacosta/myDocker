@@ -1,10 +1,8 @@
 
-version: '3.8'  # Specifies the version of the Docker Compose file format
-
 services:
   backend:
-    container_name: fastapi_container  # Name of the backend container
-    image: fastapi_image:latest  # The Docker image to use for the backend service
+    container_name: fapi_backend_container  # Name of the backend container
+    image: fapi_backend_image:latest  # The Docker image to use for the backend service
     build:
       context: ./backend  # Build context is the ./backend directory
       dockerfile: Dockerfile  # Specifies the Dockerfile located in ./backend
@@ -23,8 +21,8 @@ services:
       - app-network  # Connects backend to the app-network
 
   mssql_db:
-    container_name: mssql_container  # Name of the MSSQL database container
-    image: mssql_image:latest  # The Docker image to use for the MSSQL service
+    container_name: db_mssql_container  # Name of the MSSQL database container
+    image: db_mssql_image:latest  # The Docker image to use for the MSSQL service
     build:
       context: ./database  # Build context is the ./database directory
       dockerfile: Dockerfile  # Specifies the Dockerfile located in ./database

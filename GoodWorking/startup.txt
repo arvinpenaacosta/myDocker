@@ -1,0 +1,4 @@
+docker-compose up --build.
+
+docker-compose -f docker-compose2.yml up --build    ## docker-compose -f <yaml file> up --build  ## docker-compose -f docker-compose3.yml up --build
+
