@@ -1,0 +1,7 @@
+python-multipart
+fastapi
+uvicorn
+pymssql
+python-dotenv
+jinja2
+
