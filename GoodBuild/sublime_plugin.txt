@@ -1,0 +1,32 @@
+
+
+Tool > Developer > New Plugin
+#insert_current_dateime.py
+----------------------------------------------
+import sublime
+import sublime_plugin
+from datetime import datetime
+
+class InsertCurrentDateTimeCommand(sublime_plugin.TextCommand):
+    def run(self, edit):
+        # Get the current date and time
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Define the line of dashes
+        dashes = "---------------------"
+        
+        # Insert the current date and time at the cursor position
+        for region in self.view.sel():
+            if region.empty():
+                # Insert the date and time
+                self.view.insert(edit, region.begin(), now + "\n")
+                # Insert the line of dashes on a new line
+                self.view.insert(edit, region.begin() + len(now) + 1, dashes + "\n")
+
+
+
+-------------------
+Save to
+%UserProfile% 
+cd %UserProfile%\AppData\Roaming\"Sublime Text 3"\Packages\User  
+insert_current_dateime.py
