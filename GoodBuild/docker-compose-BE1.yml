@@ -1,0 +1,31 @@
+
+
+services:
+  backend:
+    container_name: backend_ctr
+    image: backend_img:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8881:8857"
+    #volumes:
+    #  - ./backend:/app
+    #depends_on:
+    #  - mssql_db
+    environment:
+      DB_HOST: mssql_db
+      DB_USER: sa
+      DB_PASSWORD: Admin@123.
+      DB_NAME: devappDB
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+
+
+# Before running the services, create the external network
+# >> docker network create <network-name>
+# >> docker network create app-network

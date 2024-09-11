@@ -1,0 +1,30 @@
+
+services:
+  mssql_db:
+    container_name: db_mssql_ctr
+    image: db_mssql_img:latest
+    build:
+      context: ./dbase
+      dockerfile: Dockerfile
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Admin@123."
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_vol:/var/opt/mssql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+
+volumes:
+  mssql_vol:
+
+
+
+# Before running the services, create the external network
+# >> docker network create <network-name>
+# >> docker network create app-network
