@@ -5,10 +5,12 @@ docker-compose up --build.
 docker-compose -f <yaml file> up --build  
 docker-compose -f docker-compose2.yml up --build 
 docker-compose -f docker-compose-main.yml up --build
+docker-compose -f docker-compose-backend2.yml up --build
 docker-compose -f docker-compose-office.yml up --build
 
 do this once database is created. Create a Database and a Table
 -------------------------
+Admin@123.
 CREATE DATABASE devappDB;
 
 CREATE TABLE entries (
@@ -23,8 +25,7 @@ CREATE TABLE entries (
 #######################################   
 1. Ensure both Docker Compose files share the same network
 Modify both your docker-compose-main.yml and docker-compose-backoffice.yml files to explicitly use the same named network. For example, use a network called app-network.
-#######################################   
-
+#######################################  
 --------------------------------------------------------------------
 # docker-compose-main.yml
 --------------------------------------------------------------------
@@ -126,3 +127,139 @@ docker-compose -f docker-compose-backoffice.yml up -d
 
 Since both Compose files are using the same app-network, 
 your back_office service from docker-compose-backoffice.yml can access the mssql_db service from docker-compose-main.yml.
+
+
+devapp1
+├───backend
+│   ├───Dockerfile
+│ 
+├───dbase
+│   ├───Dockerfile
+
+
+docker run -d --name backend_ctr -p 8871:8857 backend_img:latest
+
+
+
+
+# Sept 9, 2024
+docker network create app-network
+docker network create app-network2
+
+
+docker-compose -f docker-compose-main.yml up -d
+
+docker-compose -f docker-compose-BE1.yml -p backend_project1 up -d
+docker-compose -f docker-compose-BE2.yml -p backend_project2 up -d
+docker-compose -f docker-compose-DB.yml -p dbase_project up -d
+
+
+#run this after some modification in the docker-compose
+
+docker stop <container name>
+docker stop backend_ctr
+
+docker rm backend_ctr
+
+docker-compose -f docker-compose-BE1.yml up -d
+
+
+2024-09-11 18:00:47
+---------------------
+==============
+#1 Create a Docker Network for the Project
+docker network create app-network
+
+----------
+#1 Create the container without running it.Start the container later:
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 create
+
+#2 Starting the Container:
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 start
+
+----------
+#1 Create the container & Auto Start:
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 up -d
+
+----------
+docker-compose -f <backend-yml-file> -p <project-name> up -d
+
+<backend-yml-file>
+services:
+  backend:
+    container_name: <CONTAINER-NAME>
+    image: <IMAGE-NAME>:latest
+    build:
+      context: ./<PROJECT-DIRECTORY/FOLDER>
+      dockerfile: <DIRECTORY-DOCKERFILE>
+    ports:
+      - "<PORT-TO-ACCESS>:<DOCKERFILE-EXPOSE-PORT>"
+    volumes:
+      - ./backend:/app
+    environment:
+      DB_HOST: mssql_db
+      DB_USER: sa
+      DB_PASSWORD: Admin@123.
+      DB_NAME: devappDB
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
+
+# Create Network
+docker network create app-network
+
+---------------
+# Create Image and Container Manual Start
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 create
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 start
+
+# Create Image and Container Auto Start
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 up -d
+
+---------------
+Admin@123.
+# Create Image and Container Manual Start
+docker-compose -f docker-compose-db.yml -p dbase_proj1 create
+docker-compose -f docker-compose-db.yml -p dbase_proj1 start
+
+# Create Image and Container Auto Start
+docker-compose -f docker-compose-db.yml -p dbase_proj1 up -d
+
+---------------
+# Create Image and Container Manual Start
+docker-compose -f docker-compose-BE2.yml -p backend_proj2 create
+docker-compose -f docker-compose-BE2.yml -p backend_proj2 start
+
+# Create Image and Container Auto Start
+docker-compose -f docker-compose-BE2.yml -p backend_proj2 up -d
+
+---------------
+#Rebuild the Image. Be sure to remove first the Container
+docker-compose -f docker-compose-BE1.yml -p backend_proj1 up --build -d
+docker-compose -f docker-compose-BE2.yml -p backend_proj2 up --build -d
+
+docker-compose -f docker-compose-db.yml -p dbase_proj1 up --build -d
+
+
+
+
+# Restoring Saved Docker Image and Loading for use.
+# the command will save the tar file to current directory
+# be sure to select the correct image. 
+# Run the command Docker Images to list all Images.
+
+# Saving
+docker save -o db_mssql_backup.tar db_mssql_img:latest
+
+# Loading tar file to Docker Image
+docker load -i db_mssql_backup.tar
+
+# Loading the Docker Image to Docker Containter
+docker-compose -f docker-compose-db.yml -p dbase_proj1 up -d
+
+2024-09-11 02:21:10
+---------------------
+
