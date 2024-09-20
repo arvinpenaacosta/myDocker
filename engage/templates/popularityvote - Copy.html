@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar with Label</title>
+    <style>
+        /* Basic styles for the avatar container */
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+            margin: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ccc;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .label {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Grid wrapper for the containers */
+        .container-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Always 2 columns */
+            gap: 10px;
+            justify-items: center;
+            padding: 100px 20px 20px; /* Adjust for fixed header */
+        }
+
+        /* Fixed header styling */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000; /* Ensures header stays on top */
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .avatar-container {
+                width: 120px;
+            }
+
+            .avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            .label {
+                font-size: 14px;
+            }
+        }
+
+        /* Additional styling for very small screens */
+        @media (max-width: 480px) {
+            .avatar-container {
+                width: 100px;
+            }
+
+            .avatar {
+                width: 50px;
+                height: 50px;
+            }
+
+            .label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<div class="header">Popularity Voting</div>
+
+<div class="container-wrapper" id="container-wrapper"></div>
+
+<script>
+    // Data for avatars and usernames
+    const avatarData = [
+        { image: 'avatar1.jpg', name: 'User 1' },
+        { image: 'avatar2.jpg', name: 'User 2' },
+        { image: 'avatar3.jpg', name: 'User 3' },
+        { image: 'avatar4.jpg', name: 'User 4' },
+        { image: 'avatar5.jpg', name: 'User 5' },
+        { image: 'avatar6.jpg', name: 'User 6' }
+    ];
+
+    // Function to create an avatar container
+    function createAvatarContainer(image, name) {
+        const container = document.createElement('div');
+        container.classList.add('avatar-container');
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.classList.add('avatar');
+
+        const img = document.createElement('img');
+        img.src = image;
+        img.alt = 'Avatar';
+
+        avatarDiv.appendChild(img);
+
+        const label = document.createElement('div');
+        label.classList.add('label');
+        label.textContent = name;
+
+        container.appendChild(avatarDiv);
+        container.appendChild(label);
+
+        return container;
+    }
+
+    // Append multiple avatar containers to the wrapper
+    const wrapper = document.getElementById('container-wrapper');
+    avatarData.forEach(data => {
+        const avatarContainer = createAvatarContainer(data.image, data.name);
+        wrapper.appendChild(avatarContainer);
+    });
+</script>
+
+</body>
+</html>

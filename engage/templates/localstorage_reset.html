@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update or Delete Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        .container-box {
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            margin-top: 40px;
+        }
+        .form-control[readonly] {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+
+<header class="fixed-header">
+    <div class="container text-center">
+        <h2>Manage Login Information</h2>
+    </div>
+</header>
+
+<div class="container">
+    <div class="container-box">
+        <form id="manageForm">
+            <div class="mb-3">
+                <label for="eid" class="form-label">EID</label>
+                <input type="text" class="form-control" id="eid">
+            </div>
+            <div class="mb-3">
+                <label for="pswd" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="pswd">
+                    <button class="btn btn-outline-secondary" type="button" id="viewPasswordBtn">Show</button>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-primary" id="updateBtn">Update</button>
+                <button type="button" class="btn btn-danger" id="deleteBtn">Delete</button>
+                <button type="button" class="btn btn-secondary" id="clearBtn">Clear All</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    let isPasswordVisible = false;
+    
+    // Function to load existing values from localStorage
+    function loadCredentials() {
+        const eid = localStorage.getItem('eid');
+        const pswd = localStorage.getItem('pswd');
+        if (eid && pswd) {
+            document.getElementById('eid').value = eid;
+            document.getElementById('pswd').value = pswd;
+        } else {
+            alert('No credentials found in localStorage!');
+        }
+    }
+
+    // View Password button action
+    document.getElementById('viewPasswordBtn').addEventListener('click', () => {
+        const enteredEid = document.getElementById('eid').value;
+        const storedEid = localStorage.getItem('eid');
+        
+        if (enteredEid === storedEid) {
+            isPasswordVisible = !isPasswordVisible;
+            document.getElementById('pswd').type = isPasswordVisible ? 'text' : 'password';
+            document.getElementById('viewPasswordBtn').textContent = isPasswordVisible ? 'Hide' : 'Show';
+        } else {
+            alert('EID does not match! Cannot reveal the password.');
+        }
+    });
+
+    // Update button action
+    document.getElementById('updateBtn').addEventListener('click', () => {
+        const newPswd = document.getElementById('pswd').value;
+        if (newPswd) {
+            localStorage.setItem('pswd', newPswd);
+            alert('Password updated successfully!');
+        } else {
+            alert('Please enter a valid password!');
+        }
+    });
+
+    // Delete button action
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+        localStorage.removeItem('eid');
+        localStorage.removeItem('pswd');
+        document.getElementById('eid').value = '';
+        document.getElementById('pswd').value = '';
+        alert('Credentials deleted!');
+    });
+
+    // Clear all button action
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        localStorage.clear();
+        document.getElementById('eid').value = '';
+        document.getElementById('pswd').value = '';
+        alert('All localStorage cleared!');
+    });
+
+    // Load credentials on page load
+    loadCredentials();
+});
+</script>
+
+</body>
+</html>

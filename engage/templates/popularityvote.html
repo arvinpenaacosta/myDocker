@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avatar with Label</title>
+    <style>
+        /* Basic styles for the avatar container */
+        .avatar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 150px;
+            margin: 10px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            cursor: pointer; /* Make it clear it's clickable */
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #ccc;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .label {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Grid wrapper for the containers */
+        .container-wrapper {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            justify-items: center;
+            padding: 100px 20px 20px;
+        }
+
+        /* Fixed header styling */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        /* Navigation bar styles */
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ddd;
+            position: relative;
+            margin-top: 50px; /* Space for the fixed header */
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1001; /* Above header */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+            padding-top: 100px; /* Space for header */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px; /* Could be more or less, depending on screen size */
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .modal button {
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal button:hover {
+            background-color: #555;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            .avatar-container {
+                width: 120px;
+            }
+
+            .avatar {
+                width: 60px;
+                height: 60px;
+            }
+
+            .label {
+                font-size: 14px;
+            }
+        }
+
+        /* Additional styling for very small screens */
+        @media (max-width: 480px) {
+            .avatar-container {
+                width: 100px;
+            }
+
+            .avatar {
+                width: 50px;
+                height: 50px;
+            }
+
+            .label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Fixed Header -->
+<div class="header">Popularity Voting</div>
+
+<!-- Navigation Bar -->
+<div class="nav-bar">
+    <div id="eidDisplay">EID: Not Registered</div>
+    <div>&copy; 2024 Your Company</div>
+</div>
+
+<!-- Modal for EID Registration -->
+<div class="modal" id="eidModal">
+    <div class="modal-content">
+        <button class="close-button" id="closeModal">&times;</button>
+        <h2>Register</h2>
+        <input type="text" id="eidInput" placeholder="Enter your EID" required>
+        <button id="registerButton">Register Me</button>
+    </div>
+</div>
+
+<!-- Voting Modal -->
+<div class="modal" id="voteModal">
+    <div class="modal-content">
+        <button class="close-button" id="closeVoteModal">&times;</button>
+        <h2 id="voteLabel">Vote for User</h2>
+        <button id="voteButton">Vote</button>
+    </div>
+</div>
+
+<!-- Voting Status Modal -->
+<div class="modal" id="statusModal">
+    <div class="modal-content">
+        <button class="close-button" id="closeStatusModal">&times;</button>
+        <h2 id="statusLabel">Voting Status</h2>
+        <p id="statusMessage"></p>
+    </div>
+</div>
+
+<div class="container-wrapper" id="container-wrapper"></div>
+
+<script>
+    // Check for EID in localStorage
+    const eid = localStorage.getItem('eidpopvote');
+
+    if (!eid) {
+        // Show the modal if no EID is found
+        document.getElementById('eidModal').style.display = 'block';
+    } else {
+        // Display the EID in the nav bar
+        document.getElementById('eidDisplay').textContent = `EID: ${eid}`;
+    }
+
+    // Data for avatars and usernames
+    const avatarData = [
+        { image: 'avatar1.jpg', name: 'User 1' },
+        { image: 'avatar2.jpg', name: 'User 2' },
+        { image: 'avatar3.jpg', name: 'User 3' },
+        { image: 'avatar4.jpg', name: 'User 4' },
+        { image: 'avatar5.jpg', name: 'User 5' },
+        { image: 'avatar6.jpg', name: 'User 6' }
+    ];
+
+    // Function to create an avatar container
+    function createAvatarContainer(image, name) {
+        const container = document.createElement('div');
+        container.classList.add('avatar-container');
+        container.onclick = function() {
+            // Open voting modal with user's name
+            document.getElementById('voteLabel').textContent = `Vote for ${name}`;
+            document.getElementById('voteModal').style.display = 'block';
+        };
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.classList.add('avatar');
+
+        const img = document.createElement('img');
+        img.src = image;
+        img.alt = 'Avatar';
+
+        avatarDiv.appendChild(img);
+
+        const label = document.createElement('div');
+        label.classList.add('label');
+        label.textContent = name;
+
+        container.appendChild(avatarDiv);
+        container.appendChild(label);
+
+        return container;
+    }
+
+    // Append multiple avatar containers to the wrapper
+    const wrapper = document.getElementById('container-wrapper');
+    avatarData.forEach(data => {
+        const avatarContainer = createAvatarContainer(data.image, data.name);
+        wrapper.appendChild(avatarContainer);
+    });
+
+    // Handle registration
+    document.getElementById('registerButton').addEventListener('click', function() {
+        const eidInput = document.getElementById('eidInput').value;
+        if (eidInput) {
+            localStorage.setItem('eidpopvote', eidInput); // Save as eidpopvote
+            document.getElementById('eidModal').style.display = 'none'; // Hide modal
+            document.getElementById('eidDisplay').textContent = `EID: ${eidInput}`; // Update nav bar
+        } else {
+            alert("Please enter a valid EID.");
+        }
+    });
+
+    // Close modal functionality for EID modal
+    document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('eidModal').style.display = 'none';
+    });
+
+    // Close modal functionality for Vote modal
+    document.getElementById('closeVoteModal').addEventListener('click', function() {
+        document.getElementById('voteModal').style.display = 'none';
+    });
+
+    // Close modal functionality for Status modal
+    document.getElementById('closeStatusModal').addEventListener('click', function() {
+        document.getElementById('statusModal').style.display = 'none';
+    });
+
+    // Handle voting
+    document.getElementById('voteButton').addEventListener('click', function() {
+        const voted = localStorage.getItem('voted');
+        const statusMessage = document.getElementById('statusMessage');
+        if (voted) {
+            statusMessage.textContent = `This EID (${eid}) has already voted using this device.`;
+        } else {
+            localStorage.setItem('voted', 'yes'); // Mark as voted
+            statusMessage.textContent = `Thank you for voting!`;
+        }
+        document.getElementById('statusModal').style.display = 'block'; // Show custom modal
+        document.getElementById('voteModal').style.display = 'none'; // Hide vote modal
+    });
+
+    // Close status modal when clicking outside of it
+    window.addEventListener('click', function(event) {
+        const statusModal = document.getElementById('statusModal');
+        if (event.target === statusModal) {
+            statusModal.style.display = 'none';
+        }
+    });
+
+    // Close the status modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const voteModal = document.getElementById('voteModal');
+        if (event.target === voteModal) {
+            voteModal.style.display = 'none';
+        }
+    });
+
+    // Close EID modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const eidModal = document.getElementById('eidModal');
+        if (event.target === eidModal) {
+            eidModal.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>
