@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>People List</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+    input, button { margin-top: 10px; padding: 8px; }
+  </style>
+</head>
+<body>
+  <h1>List of People3</h1>
+
+  <!-- Input for adding new person -->
+  <input type="text" id="personName" placeholder="Enter name" />
+  <button onclick="addPerson()">Add Person</button>
+
+  <!-- Table to display people -->
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody id="peopleTable"></tbody>
+  </table>
+
+  <script>
+    async function fetchPeople() {
+      const response = await fetch("/api/people");
+      const data = await response.json();
+
+      const tableBody = document.getElementById("peopleTable");
+      tableBody.innerHTML = "";
+
+      data.people.forEach(person => {
+        const row = `<tr><td>${person}</td></tr>`;
+        tableBody.insertAdjacentHTML("beforeend", row);
+      });
+    }
+
+    async function addPerson() {
+      const personName = document.getElementById("personName").value;
+
+      if (personName) {
+        const response = await fetch("/api/people", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name: personName })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert("Person added successfully!");
+          fetchPeople(); // Refresh the list
+        } else {
+          alert(result.message);
+        }
+
+        // Clear the input field after adding
+        document.getElementById("personName").value = "";
+      } else {
+        alert("Please enter a name.");
+      }
+    }
+
+    // Fetch the list of people when the page loads
+    window.onload = fetchPeople;
+  </script>
+</body>
+</html>

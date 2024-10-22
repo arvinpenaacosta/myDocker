@@ -1,0 +1,1 @@
+deno run --allow-net --allow-read --allow-write sqlite_html3.ts

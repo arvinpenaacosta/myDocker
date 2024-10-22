@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRUD SPA</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input { display: block; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid black; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+  <h1>CRUD SPA</h1>
+
+  <!-- Input Fields -->
+  <input type="text" id="eid" placeholder="EID" />
+  <input type="text" id="name" placeholder="Name" />
+  <input type="password" id="pass" placeholder="Password" />
+  <button onclick="addUser()">Add User</button>
+
+  <!-- Table to Display Users -->
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>EID</th>
+        <th>Name</th>
+        <th>Password</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <script>
+    const apiUrl = "http://localhost:8000/api/users";
+
+    // Fetch and display users
+    async function fetchUsers() {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      const tableBody = document.getElementById("userTableBody");
+      tableBody.innerHTML = "";
+      data.users.forEach((user) => {
+        const row = `<tr>
+          <td>${user[0]}</td>
+          <td>${user[1]}</td>
+          <td>${user[2]}</td>
+          <td>${user[3]}</td>
+          <td>
+            <button onclick="deleteUser(${user[0]})">Delete</button>
+            <button onclick="editUser(${user[0]}, '${user[1]}', '${user[2]}', '${user[3]}')">Edit</button>
+          </td>
+        </tr>`;
+        tableBody.insertAdjacentHTML("beforeend", row);
+      });
+    }
+
+    // Add a new user
+    async function addUser() {
+      const eid = document.getElementById("eid").value;
+      const name = document.getElementById("name").value;
+      const pass = document.getElementById("pass").value;
+
+      if (eid && name && pass) {
+        await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eid, name, pass })
+        });
+        fetchUsers();
+      }
+    }
+
+    // Delete a user
+    async function deleteUser(id) {
+      await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+      fetchUsers();
+    }
+
+    // Edit a user (updates an existing user)
+    async function editUser(id, eid, name, pass) {
+      const newEid = prompt("Enter new EID:", eid);
+      const newName = prompt("Enter new name:", name);
+      const newPass = prompt("Enter new password:", pass);
+
+      if (newEid && newName && newPass) {
+        await fetch(`${apiUrl}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ eid: newEid, name: newName, pass: newPass })
+        });
+        fetchUsers();
+      }
+    }
+
+    // Initialize by fetching users
+    fetchUsers();
+  </script>
+</body>
+</html>
