@@ -3,50 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FastAPI App</title>
-    <link rel="stylesheet" href="/statics/assets/css/style.css">
+    <title>SPA CRUD App</title>
+    <link rel="icon" href="/statics/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 60%;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+        .delete-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to FastAPI</h1>
-    <p>This is the main page served by FastAPI.</p>
-    <p>API Endpoint: <a href="/api/hello">/api/hello</a></p>
 
-    <!-- Display values from .env -->
-    <p>Distinct Word: {{ distinct_word }}</p>
-    <p>KB Patch: {{ kb_patch }}</p>
+<h1>SPA CRUD Application</h1>
+<p>Distinct Word: {{ distinct_word }}</p>
+<p>KB Patch: {{ kb_patch }}</p>
 
-    <!-- Form for data submission -->
-    <form action="/api/submit" method="post">
-        <label for="field1">Field 1:</label>
-        <input type="text" id="field1" name="field1" required>
-        <br>
-        <label for="field2">Field 2:</label>
-        <input type="text" id="field2" name="field2" required>
-        <br>
-        <button type="submit">Submit</button>
-    </form>
+<form id="entryForm">
+    <input type="text" id="serialNumber" placeholder="Serial Number" required>
+    <input type="text" id="description" placeholder="Description" required>
+    <input type="text" id="location" placeholder="Location" required>
+    <input type="text" id="remarks" placeholder="Remarks">
+    <input type="text" id="switch" placeholder="Switch">
+    <input type="submit" value="Submit">
+</form>
 
-    <!-- Table to view saved entries -->
-    <h2>Saved Entries</h2>
-    <table id="entries-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Field 1</th>
-                <th>Field 2</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for entry in saved_entries %}
-                <tr>
-                    <td>{{ entry[0] }}</td>
-                    <td>{{ entry[1] }}</td>
-                    <td>{{ entry[2] }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Serial Number</th>
+            <th>Description</th>
+            <th>Location</th>
+            <th>Remarks</th>
+            <th>Switch</th>
+            <th>Timestamp</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="entriesTable">
+        <!-- Rows will be dynamically inserted here -->
+    </tbody>
+</table>
 
-    <script src="/statics/assets/js/script.js"></script>
+<script>
+    // Function to fetch and display entries
+    async function fetchEntries() {
+        const response = await fetch('/api/entries');
+        const entries = await response.json();
+        const entriesTable = document.getElementById('entriesTable');
+        entriesTable.innerHTML = ''; // Clear existing entries
+
+        entries.forEach(entry => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${entry.id}</td>
+                <td>${entry.serial_number}</td>
+                <td>${entry.description}</td>
+                <td>${entry.location}</td>
+                <td>${entry.remarks}</td>
+                <td>${entry.switch}</td>
+                <td>${entry.timestamp}</td>
+                <td><button class="delete-btn" onclick="deleteEntry(${entry.id})"><i class="fas fa-trash"></i></button></td>
+            `;
+            entriesTable.appendChild(row);
+        });
+    }
+
+    // Function to check for existing serial number and populate fields
+    document.getElementById('serialNumber').addEventListener('blur', async () => {
+        const serialNumber = document.getElementById('serialNumber').value;
+        if (serialNumber) {
+            try {
+                const response = await fetch(`/api/check_serial_number?serial_number=${serialNumber}`);
+                if (!response.ok) throw new Error('Serial number not found');
+                const data = await response.json();
+
+                // Populate form fields with retrieved data
+                document.getElementById('location').value = data.location || '';
+                document.getElementById('description').value = data.description || '';
+                document.getElementById('remarks').value = data.remarks || '';
+                document.getElementById('switch').value = data.switch || '';
+            } catch (error) {
+                console.log(error.message);
+                // Optionally, clear the fields if no entry found
+                document.getElementById('location').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('remarks').value = '';
+                document.getElementById('switch').value = '';
+            }
+        }
+    });
+
+    // Function to submit a new entry
+    document.getElementById('entryForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const serialNumber = document.getElementById('serialNumber').value;
+        const description = document.getElementById('description').value;
+        const location = document.getElementById('location').value;
+        const remarks = document.getElementById('remarks').value;
+        const switchValue = document.getElementById('switch').value;
+
+        await fetch('/api/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                serial_number: serialNumber,
+                description,
+                location,
+                remarks,
+                switch: switchValue
+            })
+        });
+
+        document.getElementById('entryForm').reset(); // Clear form fields
+        fetchEntries(); // Refresh the entries table
+    });
+
+    // Function to delete an entry
+    async function deleteEntry(id) {
+        await fetch(`/api/delete/${id}`, {
+            method: 'DELETE',
+        });
+        fetchEntries(); // Refresh the entries table
+    }
+
+    // Initial fetch of entries
+    fetchEntries();
+</script>
+
 </body>
 </html>

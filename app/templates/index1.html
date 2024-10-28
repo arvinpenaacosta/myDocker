@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script>
+        async function checkSerialNumber() {
+            const serialNumber = document.getElementById('serial_number').value;
+            if (!serialNumber) return;
+
+            const response = await fetch(`/items/check_serial/${serialNumber}`);
+            const data = await response.json();
+
+            if (data.item) {
+                // Populate fields if item exists
+                document.getElementById('location').value = data.item.location;
+                document.getElementById('brand').value = data.item.brand;
+                document.getElementById('model').value = data.item.model;
+                document.getElementById('description').value = data.item.description;
+                document.getElementById('types').value = data.item.types;
+                document.getElementById('remarks').value = data.item.remarks;
+                document.getElementById('status').value = data.item.status;
+                document.getElementById('switch').value = data.item.switch;
+            }
+        }
+    </script>
+</head>
+<body>
+    <header class="bg-light p-3">
+        <h1>Item Management</h1>
+    </header>
+
+    <section class="container mt-4">
+        <h2>Add New Item</h2>
+        <form action="/items/submit" method="post">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="location" name="location" placeholder="Location" required>
+                        <label for="location">Location</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="serial_number" name="serial_number" placeholder="Serial Number" onblur="checkSerialNumber()" required>
+                        <label for="serial_number">Serial Number</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="brand" name="brand" placeholder="Brand">
+                        <label for="brand">Brand</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="model" name="model" placeholder="Model">
+                        <label for="model">Model</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Description" required>
+                        <label for="description">Description</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="types" name="types" placeholder="Type">
+                        <label for="types">Type</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="remarks" name="remarks" placeholder="Remarks">
+                        <label for="remarks">Remarks</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="status" name="status" placeholder="Status">
+                        <label for="status">Status</label>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="switch" name="switch" placeholder="Switch">
+                        <label for="switch">Switch</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </section>
+
+    <section class="container mt-4">
+        <h2>Item List</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Location</th>
+                    <th>Serial Number</th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Remarks</th>
+                    <th>Status</th>
+                    <th>Switch</th>
+                    <th>Timestamp</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in saved_entries %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.serial_number }}</td>
+                    <td>{{ item.brand }}</td>
+                    <td>{{ item.model }}</td>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.types }}</td>
+                    <td>{{ item.remarks }}</td>
+                    <td>{{ item.status }}</td>
+                    <td>{{ item.switch }}</td>
+                    <td>{{ item.timestamp }}</td>
+                    <td>
+                        <form action="/items/delete/{{ item.id }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this item?');">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="12">No items found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</body>
+</html>

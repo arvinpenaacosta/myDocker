@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <script>
+        async function checkSerialNumber() {
+            const serialNumber = document.getElementById('serial_number').value;
+            if (!serialNumber) return;
+
+            const response = await fetch(`/items/check_serial/${serialNumber}`);
+            const data = await response.json();
+
+            if (data.item) {
+                populateForm(data.item);
+            }
+        }
+
+        function populateForm(item) {
+            document.getElementById('location').value = item.location || '';
+            document.getElementById('serial_number').value = item.serial_number || '';
+            document.getElementById('brand').value = item.brand || '';
+            document.getElementById('model').value = item.model || '';
+            document.getElementById('description').value = item.description || '';
+            document.getElementById('types').value = item.types || '';
+            document.getElementById('remarks').value = item.remarks || '';
+            document.getElementById('status').value = item.status || '';
+            document.getElementById('switch').value = item.switch || '';
+        }
+
+        function clearForm() {
+            document.getElementById('itemForm').reset();
+        }
+
+        function openModal() {
+            clearForm();
+            document.getElementById('itemMaintenanceModalLabel').textContent = "Add New Item";
+            const submitButton = document.querySelector('#itemForm button[type="submit"]');
+            submitButton.textContent = "Submit";
+            const myModal = new bootstrap.Modal(document.getElementById('itemMaintenanceModal'));
+            myModal.show();
+        }
+
+        function openDeleteModal(itemId) {
+            document.getElementById('confirmDeleteModal').dataset.itemId = itemId;
+            const deleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+            deleteModal.show();
+        }
+
+        async function deleteItem() {
+            const itemId = document.getElementById('confirmDeleteModal').dataset.itemId;
+            if (!itemId) return;
+
+            try {
+                const response = await fetch(`/items/delete/${itemId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to delete item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error deleting item');
+            }
+        }
+
+        async function disableItem() {
+            const itemId = document.getElementById('confirmDeleteModal').dataset.itemId;
+            if (!itemId) return;
+
+            try {
+                const response = await fetch(`/items/disable/${itemId}`, { method: 'PATCH' });
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to disable item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error disabling item');
+            }
+        }
+
+        async function openEditModal() {
+            const itemId = document.getElementById('confirmDeleteModal').dataset.itemId;
+            if (!itemId) return;
+
+            try {
+                const response = await fetch(`/items/check_item/${itemId}`);
+                const data = await response.json();
+                
+                if (data.item) {
+                    const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteModal'));
+                    confirmModal.hide();
+
+                    populateForm(data.item);
+                    
+                    document.getElementById('itemMaintenanceModalLabel').textContent = "Edit Item";
+                    const submitButton = document.querySelector('#itemForm button[type="submit"]');
+                    submitButton.textContent = "Update";
+                    
+                    const maintenanceModal = new bootstrap.Modal(document.getElementById('itemMaintenanceModal'));
+                    maintenanceModal.show();
+                } else {
+                    alert('Item not found');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error loading item data');
+            }
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const isUpdate = document.getElementById('itemMaintenanceModalLabel').textContent === "Edit Item";
+            
+            try {
+                const response = await fetch('/items/submit', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Failed to save item');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving item');
+            }
+        }
+    </script>
+
+    <style>
+        #popupMessage {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff5f5f;
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-family: 'Arial', sans-serif;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+            animation: fadeInOut 5s forwards;
+            z-index: 1000;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-light p-3">
+        <h1>Item Management</h1>
+    </header>
+
+    <section class="container mt-4">
+        <h2>Actions</h2>
+        <button class="btn btn-primary" onclick="openModal()">Item Maintenance</button>
+    </section>
+
+
+
+
+    <div class="modal fade" id="itemMaintenanceModal" tabindex="-1" aria-labelledby="itemMaintenanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itemMaintenanceModalLabel">Add New Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/items/submit" method="post" id="itemForm" onsubmit="submitForm(event)">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Location</span>
+                                    <input type="text" class="form-control" id="location" name="location" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Serial Number</span>
+                                    <input type="text" class="form-control" id="serial_number" name="serial_number" onblur="checkSerialNumber()" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Brand</span>
+                                    <input type="text" class="form-control" id="brand" name="brand">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Model</span>
+                                    <input type="text" class="form-control" id="model" name="model">
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Description</span>
+                                    <input type="text" class="form-control" id="description" name="description" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Type</span>
+                                    <input type="text" class="form-control" id="types" name="types">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Remarks</span>
+                                    <input type="text" class="form-control" id="remarks" name="remarks">
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Status</span>
+                                    <input type="text" class="form-control" id="status" name="status">
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">Switch</span>
+                                    <input type="text" class="form-control" id="switch" name="switch">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Delete Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this item?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteItem()">Delete</button>
+                    <button type="button" class="btn btn-warning" onclick="disableItem()">Disable</button>
+                    <button type="button" class="btn btn-primary" onclick="openEditModal()">Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+        <!-- Item List Section -->
+        <section class="container mt-4">
+            <h2>Item List</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Location</th>
+                        <th>Serial Number</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Description</th>
+                        <th>Type</th>
+                        <th>Remarks</th>
+                        <th>Status</th>
+                        <th>Switch</th>
+                        <th>Timestamp</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in saved_entries %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.location }}</td>
+                        <td>{{ item.serial_number }}</td>
+                        <td>{{ item.brand }}</td>
+                        <td>{{ item.model }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.types }}</td>
+                        <td>{{ item.remarks }}</td>
+                        <td>{{ item.status }}</td>
+                        <td>{{ item.switch }}</td>
+                        <td>{{ item.timestamp }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="openDeleteModal({{ item.id }})">Manage</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="12">No items found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    
+
+
+
+
+
+        
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMN8OW8CW4TZMO92GoD5hHwInQihLJ7tw0JxhvxWORfpC2L3sv5I+3aeO0CvzO2G" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhG81rK9U6IhZDI8Q4g9K7PQ3vsPY5AaX5pga9tN0EAK+M6ZXt5p0CV/9zCY" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+python -m venv envDevApp
+.\envDevApp\scripts\activate (startenv.bat)
+python.exe -m pip install --upgrade pip
+pip install -r requirements.txt
+
+python -V | --version
+pip -V | --version
+
+uvicorn main:app --host 0.0.0.0 --port 8857 --reload --ssl-keyfile=certs/server_unencrypted.key --ssl-certfile=certs/server.crt
+
+uvicorn main1:app --host 0.0.0.0 --port 8857 --reload 
+
+python main.py 8887
+
+https://localhost:8857/arvin/test
+
+
+
+=====================
+
+CREATE DATABASE vinDatabase;
+
+CREATE TABLE entries (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    field1 NVARCHAR(255) NOT NULL,
+    field2 NVARCHAR(255) NOT NULL
+);
+
+
+docker build -t fastapi-app-image .
+docker run -d -p 8872:8872 --name fastapi-app-container fastapi-app-image
+docker run -d -p 8857:8857 --name fastapi-app-container fastapi-app-image
+
+docker network create mynetwork
+
+docker run -d --name vin-mssql-container --network mynetwork -e ACCEPT_EULA=Y -e SA_PASSWORD=Admin@123. -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+
+docker run -d --name fastapi-app-container --network mynetwork -p 8857:8857 fastapi-app-image
+
+
+
+
+docker-compose up --build
+
+
+Admin@123.
+---------------------------
+# Basic Usage If you have a docker-compose.yml file named docker-compose.prod.yml and you want to use it
+docker-compose -f <docker-compose yml file> up
+docker-compose -f docker-compose2.yml up
+
+# Build and Start the Containers:
+docker-compose up --build
+docker-compose -p <my_custom_root_name> up
+
+# Run in Detached Mode (Optional): If you want to run the containers in the background, use the -d flag:
+docker-compose up -d --build
+
+# Stop the Containers: To stop the running containers,
+docker-compose down
+
+# Check Container Status: You can view the running containers using
+docker ps
+
+
+# Stop a Specific Container:
+
+docker stop fastapi_container
+
+docker-compose stop mssql_db
+
+
+# To restart a service that was stopped, use:
+
+docker-compose start frontend
+
+docker-compose start mssql_db
+
+
+
+

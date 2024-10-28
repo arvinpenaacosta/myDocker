@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-Second Popup Message</title>
+    <style>
+        /* Style for the popup message */
+        #popupMessage {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Popup Message -->
+    <div id="popupMessage">This is a 3-second popup message!</div>
+
+    <script>
+        // Show the popup for 3 seconds
+        window.onload = function() {
+            const popup = document.getElementById('popupMessage');
+            popup.style.display = 'block';
+
+            // Hide popup after 3 seconds
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 5000);
+        };
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+# To Run in Background
+docker-compose -f docker-compose-sqlite.yml up
+
+
+# To Run in Background Detached Mode
+docker-compose -f docker-compose-sqlite.yml up -d
+
+# Check Container
+docker ps
+
+# to Stop Container
+docker-compose -f docker-compose-sqlite.yml down
+
+
+
+# to Access the Folder App  SQLITE Database
+docker exec -it fapi_be_container /bin/sh
+
+sqlite3 database.db
+
+
+# Show all tables:
+.tables
+
+# View data from a table:
+SELECT * FROM table_name;
+
+# CREATE TABLE
+CREATE TABLE example (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+# INSERT INTO
+INSERT INTO example (name) VALUES ('Sample Name');
+
+# DELETE FROM
+DELETE FROM example WHERE id = 1;
+
+# Exit SQLite
+.exit
