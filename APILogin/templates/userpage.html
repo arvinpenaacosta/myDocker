@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <a href="/dashboard"><button>Go to Dashboard</button></a>
+    <form action="/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
+</body>
+</html>
