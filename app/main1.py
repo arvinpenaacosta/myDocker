@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, Request, Form, HTTPException
 
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
@@ -10,6 +11,7 @@ import datetime
 from dotenv import load_dotenv
 import uvicorn
 
+from pprint import pprint
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -38,6 +40,7 @@ def init_db():
             location TEXT,
             brand TEXT,
             model TEXT,
+            macadd TEXT,
             description TEXT,
             types TEXT,
             macadd TEXT,
@@ -52,7 +55,9 @@ def init_db():
     conn.close()
 
 # Run the database initialization
-init_db()
+@app.on_event("startup")
+def on_startup():
+    init_db()
 
 # Mount static files
 app.mount("/statics", StaticFiles(directory="statics"), name="statics")
@@ -60,24 +65,79 @@ app.mount("/statics", StaticFiles(directory="statics"), name="statics")
 # Initialize templates
 templates = Jinja2Templates(directory="templates")
 
-@app.get("/items", response_class=HTMLResponse)
-async def read_root(request: Request):
+
+
+
+#NEW Working API
+#curl -k "URL/APIItems"
+@app.get("/APIitems", response_class=JSONResponse)
+async def read_items(request: Request):
     distinct_word = os.getenv("DistinctWord")
     kb_patch = os.getenv("KBPatch")
 
     # Connect to SQLite database and retrieve entries
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM items')
-    saved_entries = cursor.fetchall()
+    cursor.execute("SELECT * FROM items")
+    rows = cursor.fetchall()
     conn.close()
 
-    return templates.TemplateResponse("item_maint.html", {
+    # Convert rows to a list of dictionaries
+    items = [dict(row) for row in rows]
+    
+    # Create pretty JSON string
+    pretty_json = json.dumps(
+        {"items": items, "distinct_word": distinct_word, "kb_patch": kb_patch},
+        indent=4
+    )
+
+    # Return as an HTML response to view pretty JSON
+    return HTMLResponse(content=f"<pre>{pretty_json}</pre>", media_type="text/html")
+
+
+#NEW Working
+@app.get("/items", response_class=HTMLResponse)
+async def read_items(request: Request):
+    distinct_word = os.getenv("DistinctWord")
+    kb_patch = os.getenv("KBPatch")
+
+    # Connect to SQLite database and retrieve entries
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Build the `saved_entries` structure in the desired `jsonData` format
+    saved_entries = {
+        "data": []
+    }
+
+    # Populate `saved_entries` with the required format
+    for row in rows:
+        item = {
+            "rowspan": str(row[0]),  # Assumes `row[0]` is intended as the unique identifier or count for rowspan
+            "iteminfo": [
+                {  "data0": row[0], "data1": row[1], "data2": row[2], "data3": row[3], "data4": row[4], "data5": row[5]      }, 
+                {  "data6": row[6], "data7": row[7], "data8": row[8], "data9": row[9], "data10": row[10], "data11": row[11]    }
+            ]
+        }
+
+
+        saved_entries["data"].append(item)
+
+    pprint(saved_entries["data"])
+
+    # Return the response with the template
+    return templates.TemplateResponse("item_maintBA.html", {
         "request": request,
         "distinct_word": distinct_word,
         "kb_patch": kb_patch,
-        "saved_entries": saved_entries
+        "saved_entries": saved_entries  # JSON-like format for use in the template
     })
+
+
+
 
 
 @app.get("/items/check_serial/{serial_number}")
