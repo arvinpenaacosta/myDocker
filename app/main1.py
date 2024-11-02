@@ -5,6 +5,9 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+
+from fastapi.middleware.cors import CORSMiddleware
+
 import sqlite3
 import os
 import datetime
@@ -14,6 +17,17 @@ import uvicorn
 from pprint import pprint
 # Initialize FastAPI app
 app = FastAPI()
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for testing, change in production
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -94,6 +108,38 @@ async def read_items(request: Request):
     # Return as an HTML response to view pretty JSON
     return HTMLResponse(content=f"<pre>{pretty_json}</pre>", media_type="text/html")
 
+#curl -k "URL/APIItems"
+@app.get("/APIitems2", response_class=JSONResponse)
+async def read_items(request: Request):
+    distinct_word = os.getenv("DistinctWord")
+    kb_patch = os.getenv("KBPatch")
+
+    # Connect to SQLite database and retrieve entries
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM items")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Build the `saved_entries` structure in the desired `jsonData` format
+    saved_entries = {
+        "data": []
+    }
+
+    # Populate `saved_entries` with the required format
+    for row in rows:
+        item = {
+            "rowspan": str(row[0]),  # Assumes `row[0]` is intended as the unique identifier or count for rowspan
+            "iteminfo": [
+                {  "data0": row[0], "data1": row[1], "data2": row[2], "data3": row[3], "data4": row[4], "data5": row[5]      }, 
+                {  "data6": row[6], "data7": row[7], "data8": row[8], "data9": row[9], "data10": row[10], "data11": row[11]    }
+            ]
+        }
+
+
+        saved_entries["data"].append(item)
+    return saved_entries
+
 
 #NEW Working
 @app.get("/items", response_class=HTMLResponse)
@@ -129,7 +175,7 @@ async def read_items(request: Request):
     pprint(saved_entries["data"])
 
     # Return the response with the template
-    return templates.TemplateResponse("main_item.html", {
+    return templates.TemplateResponse("item_maintBA.html", {
         "request": request,
         "distinct_word": distinct_word,
         "kb_patch": kb_patch,
