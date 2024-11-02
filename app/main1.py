@@ -129,7 +129,7 @@ async def read_items(request: Request):
     pprint(saved_entries["data"])
 
     # Return the response with the template
-    return templates.TemplateResponse("item_maintBA.html", {
+    return templates.TemplateResponse("main_item.html", {
         "request": request,
         "distinct_word": distinct_word,
         "kb_patch": kb_patch,
