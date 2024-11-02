@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Data from FastAPI</title>
+</head>
+<body>
+    <h1>API Items</h1>
+    <table id="data-table" border="1">
+        <thead>
+            <tr>
+                <th>Data0</th>
+                <th>Data1</th>
+                <th>Data2</th>
+                <th>Data3</th>
+                <th>Data4</th>
+                <th>Data5</th>
+                <th>Data6</th>
+                <th>Data7</th>
+                <th>Data8</th>
+                <th>Data9</th>
+                <th>Data10</th>
+                <th>Data11</th>
+            </tr>
+        </thead>
+        <tbody id="response-container"></tbody> <!-- This is where the data will be inserted -->
+    </table>
+
+    <script>
+        fetch("https://127.0.0.1:8872/APIitems2", {
+            method: 'GET',
+            headers: {
+                "Accept": "application/json"
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json(); // Parse JSON
+        })
+        .then(data => {
+            const container = document.getElementById("response-container");
+
+            // Loop through the data and create rows
+            data.data.forEach(item => {
+                const row = document.createElement("tr");
+
+                // Loop through iteminfo to create cells
+                item.iteminfo.forEach(info => {
+                    Object.values(info).forEach(value => {
+                        const cell = document.createElement("td");
+                        cell.innerText = value; // Set cell text
+                        row.appendChild(cell);
+                    });
+                });
+
+                // Append the row to the table body
+                container.appendChild(row);
+            });
+        })
+        .catch(error => {
+            console.error("Error fetching data:", error);
+            document.getElementById("response-container").textContent = "Failed to fetch data.";
+        });
+    </script>
+</body>
+</html>
