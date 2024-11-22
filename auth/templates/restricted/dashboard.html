@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to your Dashboard {{ username }}!</h1>
+    <a href="/main_items"><button>Item Maintenance</button></a>
+    <a href="/master_items"><button>Master Item Maintenance</button></a>
+    <form action="/logout" method="get">
+        <button type="submit">Logout</button>
+    </form>
+</body>
+</html>

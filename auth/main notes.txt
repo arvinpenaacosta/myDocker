@@ -1,0 +1,10 @@
+main.py
+
+main        -   Base main.py
+main1       -   Updated main.py
+main_jwt    -   main.py that uses jwt       
+
+
+uvicorn main:app --host 0.0.0.0 --port 8870 --reload
+uvicorn main1:app --host 0.0.0.0 --port 8870 --reload
+uvicorn main_jwt:app --host 0.0.0.0 --port 8870 --reload

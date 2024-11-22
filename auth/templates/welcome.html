@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home & Login</title>
+    <!-- Include Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Initially hide the login form */
+        #loginForm {
+            display: none;
+        }
+    </style>
+</head>
+<body class="container my-5">
+    <div class="text-center">
+        <h1>Welcome to Asset Inventory Management</h1>
+        
+        <!-- Button to show the login form -->
+        <button id="loginButton" class="btn btn-primary mt-4" onclick="showLoginForm()">Login</button>
+        
+        <!-- Login form initially hidden -->
+        <div id="loginForm" class="mt-4">
+            <h2>Login</h2>
+            
+            <!-- Display error message if it exists, hide after 5 seconds -->
+            {% if error %}
+                <div id="errorMessage" class="alert alert-danger">{{ error }}</div>
+                <script>
+                    setTimeout(function() {
+                        // Hide the error message and redirect to "/"
+                        document.getElementById('errorMessage').style.display = 'none';
+                        window.location.href = "/";
+                    }, 5000); // 5000 milliseconds = 5 seconds
+                </script>
+            {% endif %}
+            
+            <form action="/login" method="post" class="mx-auto" style="max-width: 300px;">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-success w-100">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS (optional, for advanced components) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function showLoginForm() {
+            // Hide the login button and show the login form
+            document.getElementById('loginButton').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        // Check for session expiry notification
+        async function checkSession() {
+            const token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
+            const isAuthenticated = token ? true : false;
+
+            if (!isAuthenticated) {
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('error')) {
+                    const errorMessage = urlParams.get('error');
+                    alert(errorMessage); // Prompt the error message if user is not authenticated
+                }
+            }
+        }
+
+        // Call the function on page load
+        window.onload = checkSession;
+    </script>
+</body>
+</html>
