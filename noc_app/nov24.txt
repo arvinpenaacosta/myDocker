@@ -1,1 +1,5 @@
+Nov 24 Upload
+upload latest update for the NOC Inventory Asset Management.
+Auth Folder
 
+Auth Folder can be use as template for NetScout Version 2. Just copy and rename the auth folder to netscoutv2
